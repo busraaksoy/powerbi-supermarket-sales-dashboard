@@ -1,0 +1,66 @@
+table 'Select Measure'
+	lineageTag: d5f391ac-f788-484a-9dc9-3a84357d2bbb
+
+	measure SelectedMeasureValue =
+			
+			VAR SelectedLabel = MAX('Select Measure'[Select Measure])
+			RETURN
+			    SWITCH(
+			        SelectedLabel,
+			        "Sales", [Total Sales],
+			        "Profit", [Total Profit],
+			        "Quantity", [Total Quantity],
+			        "Discount", [Total Discount],
+			        BLANK()
+			    )
+		lineageTag: 44012fef-e4b4-4416-a5e9-dbc12e53b1d6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Select Measure'
+		lineageTag: 6695515c-2fd0-40bd-a588-7d1c6a2dba6b
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Select Measure Order'
+
+		relatedColumnDetails
+			groupByColumn: 'Select Measure Fields'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Select Measure Fields'
+		isHidden
+		lineageTag: c4a73dd8-adc2-4a6a-8f10-f5653454c00b
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Select Measure Order'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Select Measure Order'
+		isHidden
+		formatString: 0
+		lineageTag: 57b894a8-cae7-4c38-abbe-a47677cbb615
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Select Measure' = calculated
+		mode: import
+		source =
+				{
+				    ("Sales", NAMEOF('Measure Table'[Total Sales]), 0),
+				    ("Profit", NAMEOF('Measure Table'[Total Profit]), 1),
+				    ("Quantity", NAMEOF('Measure Table'[Total Quantity]), 2),
+				    ("Discount", NAMEOF('Measure Table'[Total Discount]), 3)
+				}
+
+	annotation PBI_Id = 0b534e030d404c12a887690cc5019b50
+

@@ -1,0 +1,151 @@
+table FactSales
+	lineageTag: 8a97bbdc-6b06-49cd-af33-8536f545aa90
+
+	column 'Order Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 12bac6c1-6ede-4aa6-9176-e79e8d2ae529
+		summarizeBy: none
+		sourceColumn: Order Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Order ID'
+		dataType: string
+		lineageTag: 78009a82-0b74-4b19-b003-0353bdcd6e6f
+		summarizeBy: none
+		sourceColumn: Order ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Discount
+		dataType: double
+		formatString: %0.00;-%0.00;%0.00
+		lineageTag: 69d2e284-b9b9-4263-b59d-5df01c00e886
+		summarizeBy: sum
+		sourceColumn: Discount
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Number of Records'
+		dataType: int64
+		formatString: 0
+		lineageTag: b5123b0d-c448-4b82-b734-7bb9cf9007c0
+		summarizeBy: sum
+		sourceColumn: Number of Records
+
+		annotation SummarizationSetBy = Automatic
+
+	column Profit
+		dataType: decimal
+		formatString: #,0
+		lineageTag: 2b2beea9-04f6-4f43-b916-fab16ded75f7
+		summarizeBy: sum
+		sourceColumn: Profit
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Profit Ratio'
+		dataType: double
+		lineageTag: 1270ff41-2550-46ec-9d3c-f948191744c5
+		summarizeBy: sum
+		sourceColumn: Profit Ratio
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: f4a19c95-2829-4821-8998-7cd27ae59d8a
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sales
+		dataType: decimal
+		formatString: #,0
+		lineageTag: cab61d41-6016-4927-b2ee-413bab89e3a8
+		summarizeBy: sum
+		sourceColumn: Sales
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Ship Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 107cca37-1ad1-4dfc-9baa-3bf7f9bafa91
+		summarizeBy: none
+		sourceColumn: Ship Date
+
+		variation Variation
+			isDefault
+			relationship: be2bb45a-7cb7-43e0-8db3-959a84171080
+			defaultHierarchy: LocalDateTable_9dd4256d-8216-4f50-9223-064b5c1b74ce.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Product ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: 2fd10858-37af-4a92-a0cf-c10c593c46dc
+		summarizeBy: none
+		sourceColumn: Product ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Location ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: 7e5a3a1f-dced-476e-bc89-5c453b8e55f9
+		summarizeBy: none
+		sourceColumn: Location ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Customer ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: 4e4c8386-5edb-4d2a-944f-5a2b751002a0
+		summarizeBy: none
+		sourceColumn: Customer ID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactSales = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("D:\Masaüstü 2025\Power BI Proje\first_project\supermarket.xlsx"), null, true),
+				    #"Tableau Superstore_Sheet" = Source{[Item="Tableau Superstore",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Tableau Superstore_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Category", type text}, {"City", type text}, {"Country", type text}, {"Customer Name", type text}, {"Manufacturer", type text}, {"Order Date", type date}, {"Order ID", type text}, {"Postal Code", Int64.Type}, {"Product Name", type text}, {"Region", type text}, {"Segment", type text}, {"Ship Date", type date}, {"Ship Mode", type text}, {"State", type text}, {"Sub-Category", type text}, {"Discount", type number}, {"Number of Records", Int64.Type}, {"Profit", type text}, {"Profit Ratio", type number}, {"Quantity", Int64.Type}, {"Sales", type text}}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Changed Type", "Profit", "Profit - Copy"),
+				    #"Replaced Value" = Table.ReplaceValue(#"Duplicated Column","$","",Replacer.ReplaceText,{"Profit - Copy"}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Replaced Value",{{"Profit - Copy", Int64.Type}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type1",{"Profit - Copy"}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Removed Columns","$","",Replacer.ReplaceText,{"Profit"}),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Replaced Value1",{{"Profit", Currency.Type}}),
+				    #"Replaced Value2" = Table.ReplaceValue(#"Changed Type2","$","",Replacer.ReplaceText,{"Sales"}),
+				    #"Changed Type3" = Table.TransformColumnTypes(#"Replaced Value2",{{"Sales", Currency.Type}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Changed Type3", {"Product Name"}, DimProduct, {"Product Name"}, "DimProduct (2)", JoinKind.LeftOuter),
+				    #"Expanded DimProduct (2)" = Table.ExpandTableColumn(#"Merged Queries", "DimProduct (2)", {"Product ID"}, {"DimProduct (2).Product ID"}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Expanded DimProduct (2)", {"City"}, DimLocation, {"City"}, "DimLocation (2)", JoinKind.LeftOuter),
+				    #"Expanded DimLocation (2)" = Table.ExpandTableColumn(#"Merged Queries1", "DimLocation (2)", {"Location ID"}, {"DimLocation (2).Location ID"}),
+				    #"Merged Queries2" = Table.NestedJoin(#"Expanded DimLocation (2)", {"Customer Name"}, DimCustomers, {"Customer Name"}, "DimCustomers (2)", JoinKind.LeftOuter),
+				    #"Expanded DimCustomers (2)" = Table.ExpandTableColumn(#"Merged Queries2", "DimCustomers (2)", {"Customer ID"}, {"DimCustomers (2).Customer ID"}),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Expanded DimCustomers (2)",{"Category", "City", "Country", "Customer Name", "Manufacturer", "Postal Code", "Product Name", "Region", "Segment", "Ship Mode", "State", "Sub-Category"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns1",{{"DimCustomers (2).Customer ID", "Customer ID"}, {"DimLocation (2).Location ID", "Location ID"}, {"DimProduct (2).Product ID", "Product ID"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

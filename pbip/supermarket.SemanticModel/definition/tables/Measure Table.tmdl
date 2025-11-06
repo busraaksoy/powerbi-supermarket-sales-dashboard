@@ -1,0 +1,693 @@
+table 'Measure Table'
+	lineageTag: ede8a85d-d2ed-4be8-ac49-d401e843f03d
+
+	measure 'Customer Count' = DISTINCTCOUNTNOBLANK(DimCustomers[Customer ID])
+		formatString: 0
+		displayFolder: Order Metrics
+		lineageTag: 0b57b006-ad92-4594-a41f-aeec83c8db96
+
+	measure 'Order Count' = DISTINCTCOUNTNOBLANK(DimOrders[Order ID])
+		formatString: 0
+		displayFolder: Order Metrics
+		lineageTag: eeb3af3f-d517-4828-9774-ff12c6d1e085
+
+	measure 'Product Count' = DISTINCTCOUNTNOBLANK(DimProduct[Product ID])
+		formatString: 0
+		displayFolder: Order Metrics
+		lineageTag: b672c6bd-c72d-414a-9ca5-7b57e9a44ba1
+
+	measure 'Total Sales' = SUM(FactSales[Sales])
+		formatString: 0.00
+		displayFolder: Performance Measures
+		lineageTag: a9dc41bc-a659-47c5-a62b-8c6c3de28fb4
+
+	measure 'Total Profit' = SUM(FactSales[Profit])
+		formatString: #,0.00
+		displayFolder: Performance Measures
+		lineageTag: 2a5a1517-6014-4f31-822e-79c21650f56c
+
+	measure 'Total Quantity' = SUM(FactSales[Quantity])
+		formatString: 0
+		displayFolder: Performance Measures
+		lineageTag: a2f8b76d-c525-4afc-aa59-bb90b3a60818
+
+	measure 'Total Discount' = SUM(FactSales[Discount])
+		displayFolder: Performance Measures
+		lineageTag: d1175b42-89c3-4988-a79e-3efe31b973c8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Sales PY' = ```
+			
+			    CALCULATE(
+			        [Total Sales],
+			        SAMEPERIODLASTYEAR(DimDate[Date])
+			    )
+			```
+		formatString: #,0.00
+		displayFolder: Time Intelligence\Sales
+		lineageTag: 444317ef-c9a7-40dd-bee5-0ec51244f049
+
+	measure 'Sales YoY Growth' = ```
+			
+			    DIVIDE(
+			        [Total Sales] - [Sales PY],
+			        [Sales PY],
+			        0
+			    )
+			```
+		displayFolder: Time Intelligence\Sales
+		lineageTag: e8d1a477-2714-421d-84c9-d2bcb7213b24
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Sales Growth KPI' = ```
+			
+			    VAR Growth = [Sales YoY Growth]
+			RETURN
+			IF(
+			    ISBLANK(Growth),
+			    BLANK(),
+			    FORMAT(Growth, "0.00%") 
+			    & 
+			    IF(Growth > 0, " ▲", " ▼")
+			)
+			```
+		displayFolder: Time Intelligence\Sales
+		lineageTag: d7431e75-34eb-4cc0-961d-25a626d8cfdc
+
+	measure 'Profit PY' = ```
+			
+			    CALCULATE(
+			        [Total Profit],
+			        SAMEPERIODLASTYEAR(DimDate[Date])
+			    )
+			```
+		formatString: #,0.00
+		displayFolder: Time Intelligence\Profit
+		lineageTag: cd179bd7-0080-439b-ae98-dbf5fd658762
+
+	measure 'Profit YoY Growth' = ```
+			
+			    DIVIDE(
+			        [Total Profit] - [Profit PY],
+			        [Profit PY],
+			        0
+			    )
+			```
+		displayFolder: Time Intelligence\Profit
+		lineageTag: 5ce45587-2858-4bcf-9a6c-39b4128f2b52
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Profit Growth KPI' = ```
+			
+			    VAR Growth = [Profit YoY Growth]
+			RETURN
+			IF(
+			    ISBLANK(Growth),
+			    BLANK(),
+			    FORMAT(Growth, "0.00%")
+			    &
+			    IF(Growth > 0, " ▲", " ▼")
+			)
+			```
+		displayFolder: Time Intelligence\Profit
+		lineageTag: 1b5c4929-e0d9-44a6-a073-b135c464e9d0
+
+	measure 'Quanity PY' = ```
+			
+			    CALCULATE(
+			        [Total Quantity],
+			        SAMEPERIODLASTYEAR(DimDate[Date])
+			    )
+			```
+		formatString: 0
+		displayFolder: Time Intelligence\Quantity
+		lineageTag: 2e65323a-1610-4e84-ba5b-394850ecd2c3
+
+	measure 'Quantity YoY Growth' = ```
+			
+			    DIVIDE(
+			        [Total Profit] - [Profit PY],
+			        [Profit PY],
+			        0
+			    )
+			```
+		displayFolder: Time Intelligence\Quantity
+		lineageTag: 916871a2-9fc8-4841-bb3b-f99ef40b03fc
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Quantity Growth KPI' = ```
+			
+			    VAR Growth = [Quantity YoY Growth]
+			RETURN
+			IF(
+			    ISBLANK(Growth),
+			    BLANK(),
+			    FORMAT(Growth, "0.00%")
+			    &
+			    IF(Growth > 0, " ▲", " ▼")
+			)
+			```
+		displayFolder: Time Intelligence\Quantity
+		lineageTag: c06bd246-5b38-4596-af88-8cddaf7cf0de
+
+	measure 'Discount PY' = ```
+			
+			    CALCULATE(
+			        [Total Discount],
+			        SAMEPERIODLASTYEAR(DimDate[Date])
+			    )
+			```
+		displayFolder: Time Intelligence\Discount
+		lineageTag: 78801eef-a729-467e-8bf8-5d93eb685305
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Discount YoY Growth' = ```
+			
+			    DIVIDE(
+			        [Total Discount] - [Discount PY],
+			        [Discount PY],
+			        0
+			    )
+			```
+		displayFolder: Time Intelligence\Discount
+		lineageTag: d41ee2fd-782f-43bf-9b2e-b951c42d0561
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Discount Growth KPI' = ```
+			
+			    VAR Growth = [Discount YoY Growth]
+			RETURN
+			IF(
+			    ISBLANK(Growth),
+			    BLANK(),
+			    FORMAT(Growth, "0.00%")
+			    &
+			    IF(Growth > 0 ," ▲", " ▼")
+			)
+			```
+		displayFolder: Time Intelligence\Discount
+		lineageTag: 45a76560-d58b-4e6f-8976-9e0f617ec47c
+
+	measure 'Profit Sparkline' = ```
+			
+			// line and area colour - use %23 instead of # for Firefox compatibility (Measure Derived from Eldersveld Modified by Kolosko)
+			VAR Defs = "<defs>
+			    <linearGradient id='grad' x1='0' y1='25' x2='0' y2='50' gradientUnits='userSpaceOnUse'>
+			        <stop stop-color='#c7eae5' offset='0' />
+			        <stop stop-color='white' stop-opacity='0' offset='1' />
+			    </linearGradient>
+			</defs>"
+			// "Date" field used in this example along the X axis
+			VAR XMinDate = MIN('DimDate'[MonthStartDate])
+			VAR XMaxDate = MAX('DimDate'[MonthStartDate])
+			
+			// Obtain overall min and overall max measure values when evaluated for each date
+			VAR YMinValue = MINX(Values('DimDate'[MonthStartDate]),CALCULATE([Total Profit]))
+			VAR YMaxValue = MAXX(Values('DimDate'[MonthStartDate]),CALCULATE([Total Profit]))
+			
+			// Build table of X & Y coordinates and fit to 50 x 150 viewbox
+			VAR SparklineTable = ADDCOLUMNS(
+			    SUMMARIZE('DimDate','DimDate'[MonthStartDate]),
+			        "X",INT(148 * DIVIDE('DimDate'[MonthStartDate] - XMinDate, XMaxDate - XMinDate)),
+			        "Y",INT(40 * DIVIDE([Total Profit] - YMinValue,YMaxValue - YMinValue)))
+			
+			// Concatenate X & Y coordinates to build the sparkline
+			VAR Lines = CONCATENATEX(SparklineTable,[X] & "," & 50-[Y]," ", 'DimDate'[MonthStartDate])
+			
+			// Add to SVG, and verify Data Category is set to Image URL for this measure
+			VAR SVGImageURL = 
+			    "data:image/svg+xml;utf8," & 
+			    "<svg xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' viewBox='1 0 145 60'>" & Defs &
+			     "<polyline fill='url(#grad)' fill-opacity='1' stroke='#2d7870'
+			      stroke-width='1.2' points=' 0 50 " & Lines & 
+			      " 148 150 Z '/></svg>"
+			RETURN SVGImageURL
+			```
+		displayFolder: Sparkline
+		lineageTag: a26b0587-170e-4320-8558-5ef40062ba83
+
+	measure 'Sales Sparkline' = ```
+			
+			// line and area colour - use %23 instead of # for Firefox compatibility (Measure Derived from Eldersveld Modified by Kolosko)
+			VAR Defs = "<defs>
+			    <linearGradient id='grad' x1='0' y1='25' x2='0' y2='50' gradientUnits='userSpaceOnUse'>
+			        <stop stop-color='#c7eae5' offset='0' />
+			        <stop stop-color='white' stop-opacity='0' offset='1' />
+			    </linearGradient>
+			</defs>"
+			// "Date" field used in this example along the X axis
+			VAR XMinDate = MIN('DimDate'[MonthStartDate])
+			VAR XMaxDate = MAX('DimDate'[MonthStartDate])
+			
+			// Obtain overall min and overall max measure values when evaluated for each date
+			VAR YMinValue = MINX(Values('DimDate'[MonthStartDate]),CALCULATE([Total Sales]))
+			VAR YMaxValue = MAXX(Values('DimDate'[MonthStartDate]),CALCULATE([Total Sales]))
+			
+			// Build table of X & Y coordinates and fit to 50 x 150 viewbox
+			VAR SparklineTable = ADDCOLUMNS(
+			    SUMMARIZE('DimDate','DimDate'[MonthStartDate]),
+			        "X",INT(148 * DIVIDE('DimDate'[MonthStartDate] - XMinDate, XMaxDate - XMinDate)),
+			        "Y",INT(40 * DIVIDE([Total Sales] - YMinValue,YMaxValue - YMinValue)))
+			
+			// Concatenate X & Y coordinates to build the sparkline
+			VAR Lines = CONCATENATEX(SparklineTable,[X] & "," & 50-[Y]," ", 'DimDate'[MonthStartDate])
+			
+			// Add to SVG, and verify Data Category is set to Image URL for this measure
+			VAR SVGImageURL = 
+			    "data:image/svg+xml;utf8," & 
+			    "<svg xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' viewBox='1 0 145 60'>" & Defs &
+			     "<polyline fill='url(#grad)' fill-opacity='1' stroke='#2d7870'
+			      stroke-width='1.2' points=' 0 50 " & Lines & 
+			      " 148 150 Z '/></svg>"
+			RETURN SVGImageURL
+			```
+		displayFolder: Sparkline
+		lineageTag: 09b1b92c-767e-428d-9393-e8ecd6930339
+
+	measure 'Discount Sparkline' = ```
+			
+			// line and area colour - use %23 instead of # for Firefox compatibility (Measure Derived from Eldersveld Modified by Kolosko)
+			VAR Defs = "<defs>
+			    <linearGradient id='grad' x1='0' y1='25' x2='0' y2='50' gradientUnits='userSpaceOnUse'>
+			        <stop stop-color='#c7eae5' offset='0' />
+			        <stop stop-color='white' stop-opacity='0' offset='1' />
+			    </linearGradient>
+			</defs>"
+			// "Date" field used in this example along the X axis
+			VAR XMinDate = MIN('DimDate'[MonthStartDate])
+			VAR XMaxDate = MAX('DimDate'[MonthStartDate])
+			
+			// Obtain overall min and overall max measure values when evaluated for each date
+			VAR YMinValue = MINX(Values('DimDate'[MonthStartDate]),CALCULATE([Total Discount]))
+			VAR YMaxValue = MAXX(Values('DimDate'[MonthStartDate]),CALCULATE([Total Discount]))
+			
+			// Build table of X & Y coordinates and fit to 50 x 150 viewbox
+			VAR SparklineTable = ADDCOLUMNS(
+			    SUMMARIZE('DimDate','DimDate'[MonthStartDate]),
+			        "X",INT(148 * DIVIDE('DimDate'[MonthStartDate] - XMinDate, XMaxDate - XMinDate)),
+			        "Y",INT(40 * DIVIDE([Total Discount] - YMinValue,YMaxValue - YMinValue)))
+			
+			// Concatenate X & Y coordinates to build the sparkline
+			VAR Lines = CONCATENATEX(SparklineTable,[X] & "," & 50-[Y]," ", 'DimDate'[MonthStartDate])
+			
+			// Add to SVG, and verify Data Category is set to Image URL for this measure
+			VAR SVGImageURL = 
+			    "data:image/svg+xml;utf8," & 
+			    "<svg xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' viewBox='1 0 145 60'>" & Defs &
+			     "<polyline fill='url(#grad)' fill-opacity='1' stroke='#2d7870'
+			      stroke-width='1.2' points=' 0 50 " & Lines & 
+			      " 148 150 Z '/></svg>"
+			RETURN SVGImageURL
+			```
+		displayFolder: Sparkline
+		lineageTag: 310cd593-f82e-4365-bdf0-c1bdf9af93da
+
+	measure 'Quantity Sparkline' = ```
+			
+			// line and area colour - use %23 instead of # for Firefox compatibility (Measure Derived from Eldersveld Modified by Kolosko)
+			VAR Defs = "<defs>
+			    <linearGradient id='grad' x1='0' y1='25' x2='0' y2='50' gradientUnits='userSpaceOnUse'>
+			        <stop stop-color='#c7eae5' offset='0' />
+			        <stop stop-color='white' stop-opacity='0' offset='1' />
+			    </linearGradient>
+			</defs>"
+			// "Date" field used in this example along the X axis
+			VAR XMinDate = MIN('DimDate'[MonthStartDate])
+			VAR XMaxDate = MAX('DimDate'[MonthStartDate])
+			
+			// Obtain overall min and overall max measure values when evaluated for each date
+			VAR YMinValue = MINX(Values('DimDate'[MonthStartDate]),CALCULATE([Total Quantity]))
+			VAR YMaxValue = MAXX(Values('DimDate'[MonthStartDate]),CALCULATE([Total Quantity]))
+			
+			// Build table of X & Y coordinates and fit to 50 x 150 viewbox
+			VAR SparklineTable = ADDCOLUMNS(
+			    SUMMARIZE('DimDate','DimDate'[MonthStartDate]),
+			        "X",INT(148 * DIVIDE('DimDate'[MonthStartDate] - XMinDate, XMaxDate - XMinDate)),
+			        "Y",INT(40 * DIVIDE([Total Quantity] - YMinValue,YMaxValue - YMinValue)))
+			
+			// Concatenate X & Y coordinates to build the sparkline
+			VAR Lines = CONCATENATEX(SparklineTable,[X] & "," & 50-[Y]," ", 'DimDate'[MonthStartDate])
+			
+			// Add to SVG, and verify Data Category is set to Image URL for this measure
+			VAR SVGImageURL = 
+			    "data:image/svg+xml;utf8," & 
+			    "<svg xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' viewBox='1 0 145 60'>" & Defs &
+			     "<polyline fill='url(#grad)' fill-opacity='1' stroke='#2d7870'
+			      stroke-width='1.2' points=' 0 50 " & Lines & 
+			      " 148 150 Z '/></svg>"
+			RETURN SVGImageURL
+			```
+		displayFolder: Sparkline
+		lineageTag: 4b8128d8-2a64-4aed-80fb-2dfbccbbbfcd
+
+	measure 'Line Title' = ```
+			
+			    VAR SelectedMeasure = MAX('Select Measure'[Select Measure])
+			    VAR SelectYear = MAX(DimDate[Year])
+			RETURN
+			IF(
+			    ISBLANK(SelectedMeasure),
+			    "Select a Measure",
+			    SelectedMeasure & " Overtime - " & SelectYear
+			)
+			```
+		displayFolder: Charts\Line Chart
+		lineageTag: 3297bcf0-f1b1-4b3a-a41d-673fc5e67235
+
+	measure 'Line Chart Label' = ```
+			
+			    VAR SelectedMeasure = MAX('Select Measure'[Select Measure])
+			    VAR YoYGrowth =
+			        SWITCH(
+			            SelectedMeasure,
+			            "Sales", [Sales YoY Growth],
+			            "Profit", [Profit YoY Growth],
+			            "Quantity", [Quantity YoY Growth],
+			            "Discount", [Discount YoY Growth],
+			            BLANK()
+			        )
+			RETURN
+			IF(
+			    NOT ISBLANK(YoYGrowth),
+			    FORMAT(YoYGrowth, "+0.0%;-0.0%"),
+			    BLANK()
+			)
+			```
+		displayFolder: Charts\Line Chart
+		lineageTag: 55ee3156-12a2-4a40-a1ad-9975247d6ea4
+
+	measure 'Line Bar Color' = ```
+			
+			    VAR SelectedMeasure = MAX('Select Measure'[Select Measure])
+			    VAR YoYGrowth = 
+			        SWITCH(
+			            SelectedMeasure,
+			            "Sales", [Sales YoY Growth],
+			            "Profit", [Profit YoY Growth],
+			            "Quantity", [Quantity YoY Growth],
+			            "Discount", [Discount YoY Growth],
+			            BLANK()
+			        )
+			RETURN
+			IF(
+			    ISBLANK(YoYGrowth),
+			    "#808080",
+			    IF(
+			        YoYGrowth >= 0,
+			        "#008000", 
+			        "#FF0000"
+			    )
+			)
+			```
+		displayFolder: Charts\Line Chart
+		lineageTag: a9ff0644-b5d6-4c03-8fd9-37128a2b4247
+
+	measure 'Selected Measure PY' = ```
+			
+			    VAR SelectedLabel = MAX('Select Measure'[Select Measure])
+			RETURN
+			SWITCH(
+			    SelectedLabel,
+			    "Sales", [Sales PY],
+			    "Profit", [Profit PY],
+			    "Quantity", [Quanity PY],
+			    "Discount", [Discount PY],
+			    BLANK()
+			)
+			```
+		displayFolder: Charts\Tooltips
+		lineageTag: c03c05f0-b7f9-4b61-8eda-50fb8c9efe0f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Selected Measure YoY' = ```
+			
+			    VAR selectedLabel = MAX('Select Measure'[Select Measure])
+			RETURN
+			SWITCH(
+			    selectedLabel,
+			    "Sales", [Sales YoY Growth],
+			    "Profit", [Profit YoY Growth],
+			    "Quantity", [Quantity YoY Growth],
+			    "Discount", [Discount YoY Growth],
+			    BLANK()
+			)
+			```
+		formatString: %0.00;-%0.00;%0.00
+		displayFolder: Charts\Tooltips
+		lineageTag: 6f8a5149-6161-4d27-b7da-7d37a400d1f0
+
+	measure 'Selected Measure Value' = ```
+			
+			    VAR SelectedMeasure = MAX('Select Measure'[Select Measure])
+			    VAR Selected = 
+			        SWITCH(
+			            SelectedMeasure,
+			            "Sales", [Total Sales],
+			            "Profit", [Total Profit],
+			            "Quantity", [Total Quantity],
+			            "Discount", [Total Discount],
+			            BLANK()
+			        )
+			RETURN
+			Selected
+			```
+		displayFolder: Charts\Tooltips
+		lineageTag: 8c63d528-a209-45a7-80bd-e03c3c6eb3ff
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Tooltip Category' = ```
+			
+			    COALESCE(
+			        SELECTEDVALUE(DimLocation[Region]),
+			        SELECTEDVALUE(DimLocation[State]),
+			        SELECTEDVALUE(DimDate[Month]),
+			        "All"
+			    )
+			```
+		displayFolder: Charts\Tooltips
+		lineageTag: dd5fd42a-58c0-4ce1-8e2d-cc9594031913
+
+	measure 'Sales %' = ```
+			
+			    DIVIDE(
+			        [Total Sales],
+			        CALCULATE(
+			                [Total Sales],ALLSELECTED(
+			                                    'FactSales')))
+			```
+		displayFolder: Time Intelligence\Sales
+		lineageTag: 34ecb6e3-0963-4628-8ace-645f6214f307
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure _PieChart = ```
+			
+			// Derived from Martens
+			    // Values
+				VAR Percentage =  DIVIDE([Total Sales],CALCULATE([Total Sales],ALLSELECTED('FactSales')),0)// value has to be >= 0 and <=1
+				VAR Colour = "#7BB0A9" //COLOR_2 - İÇ KISIM
+				VAR CirclePercent = 180 - (IF(Percentage > .9999, .9999, Percentage) * 360)
+				VAR ShortDistance = if(CirclePercent < 0, 1,0)
+				VAR Radians = RADIANS(CirclePercent)
+				VAR XArcEnd = sin(Radians)*.8
+				VAR YArcEnd = cos(Radians)*.8
+			    // svg string 
+				VAR svgHeader = 
+			    "data:image/svg+xml;utf8,<svg width='30' height='30' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 2 2'>" 
+				VAR BackgroundArc ="<path d='M 0 -.8 A 0.8 0.8 0 1 1 "&sin(RADIANS(-179.99))*.8&" "& cos(RADIANS(-179.99))*.8&"  L 0 0 z' fill='#AED6D1'></path>" //COLOR_1 - DIŞ KISIM
+				VAR Arc ="<path d='M 0 -.8 A 0.8 0.8 0 " & ShortDistance & " 1 " & XArcEnd & " " & YArcEnd & "  L 0 0 z' fill='" & Colour & "'></path>"
+				VAR svgFooter = "</svg>"
+			    return svgHeader & BackgroundArc & Arc & svgFooter
+			```
+		displayFolder: Charts\Pie_SVG Chart
+		lineageTag: 769403e2-bd5c-4880-9f7d-f7385a7ac96e
+		dataCategory: ImageUrl
+
+	measure 'Top State Label' = ```
+			
+			    VAR SelectYear = MAX(DimDate[Year])
+			RETURN
+			IF(
+			    ISBLANK(SelectYear),
+			    "Select a Measure",
+			    "Top 5 State by Sales - " & SelectYear
+			)
+			```
+		displayFolder: Charts\Top 5 State Label
+		lineageTag: ee595dda-b3e0-4bc2-8383-0d093f4c95c3
+
+	measure 'Map State Label' = ```
+			
+			    VAR SelectYear = MAX(DimDate[Year])
+			RETURN
+			IF(
+			    ISBLANK(SelectYear),
+			    "Select a Measure",
+			    "Top 5 State by Sales - " & SelectYear
+			)
+			```
+		displayFolder: Charts\Maps State Label
+		lineageTag: 06b1e5b4-9be2-4166-827a-61fd8e067c82
+
+	measure 'Region Title' = ```
+			
+			    VAR SelectedMeasure = MAX('Select Measure'[Select Measure])
+			    VAR SelectedYear = MAX(DimDate[Year])
+			RETURN
+			    IF(
+			        ISBLANK(SelectedMeasure),
+			        "Select a Measure",
+			        SelectedMeasure & " by Region - " & selectedYear
+			    )
+			```
+		displayFolder: Charts\Region Bar
+		lineageTag: d81dbb03-865d-4298-bbac-e678fb084600
+
+	measure 'Region Subtitle' =
+			
+			VAR SelectedMeasureName =
+			    MAX ( 'Select Measure'[Select Measure] )
+			
+			VAR MeasureValue =
+			    SWITCH (
+			        SelectedMeasureName,
+			        "Sales", [Total Sales],         -- Assumes [Total Sales] responds to region filter
+			        "Profit", [Total Profit],       -- Assumes [Total Profit] responds to region filter
+			        "Quantity", [Total Quantity], -- Assumes [Total Quantity Sold] responds to region filter
+			        "Discount", [Total Discount],   -- Assumes [Total Discount] responds to region filter
+			        BLANK()
+			    )
+			
+			VAR YoYGrowth =
+			    SWITCH (
+			        SelectedMeasureName,
+			        "Sales", [Sales YOY Growth],    -- Assumes [Sales YOY Growth] responds to region filter
+			        "Profit", [Profit YOY Growth],  -- Assumes [Profit YOY Growth] responds to region filter
+			        "Quantity", [Quantity YOY Growth], -- Assumes [Quantity YOY Growth] responds to region filter
+			        "Discount", [Discount YOY Growth], -- Assumes [Discount YOY Growth] responds to region filter
+			        BLANK()
+			    )
+			
+			    -- format the measure value
+			VAR MeasureValueFormatted =
+			    SWITCH (
+			        TRUE(),
+			        SelectedMeasureName = "Profit Margin", FORMAT ( MeasureValue, "0.0%" ),
+			        ABS ( MeasureValue ) >= 1000, FORMAT ( MeasureValue / 1000, "0.#K" ),
+			        FORMAT ( MeasureValue, "0" )
+			    )
+			
+			VAR RegionName =
+			    MAX ( 'DimLocation'[Region] ) -- This correctly captures the region from the current filter context
+			
+			RETURN
+			IF (
+			    ISBLANK(MeasureValue),
+			    "Best performing Region: " & RegionName & UNICHAR(10) & "Select a measure",
+			    "Best performing Region: " & RegionName & " " & MeasureValueFormatted & " (" &
+			        IF(NOT ISBLANK(YoYGrowth), FORMAT(YoYGrowth, "+0%;-0%"), "N/A") & " YOY)"
+			)
+		displayFolder: Charts\Region Bar
+		lineageTag: 3b573ff3-2226-4e76-b39b-05fbfc5532e2
+
+	measure 'Region Bar Label' =
+			
+			VAR SelectedMeasure = MAX('Select Measure'[Select Measure])
+			VAR YoYGrowth =
+			    SWITCH(
+			        SelectedMeasure,
+			        "Sales", [Sales YOY Growth],
+			        "Profit", [Profit YOY Growth],
+			        "Quantity", [Quantity YOY Growth],
+			        "Discount", [Discount YOY Growth],
+			        BLANK()
+			    )
+			VAR RegionName = MAX('DimLocation'[Region])
+			RETURN
+			    IF(
+			        ISBLANK(SelectedMeasure),
+			        RegionName & UNICHAR(10) & "Select a measure",
+			        RegionName & "  | " &
+			        IF(
+			            NOT ISBLANK(YoYGrowth),
+			            FORMAT(YoYGrowth, "+0.0%;-0.0%"),
+			            "N/A"
+			        )
+			    )
+		displayFolder: Charts\Region Bar
+		lineageTag: 38631c54-be06-4d6a-b277-225db63a10d2
+
+	measure 'Region Bar Color' =
+			
+			VAR SelectedMeasure = MAX('Select Measure'[Select Measure])
+			VAR YoYGrowth =
+			    SWITCH(
+			        SelectedMeasure,
+			        "Sales", [Sales YOY Growth],
+			        "Profit", [Profit YOY Growth],
+			        "Quantity", [Quantity YOY Growth],
+			        "Discount", [Discount YOY Growth],
+			        BLANK()
+			    )
+			RETURN
+			    IF(
+			        ISBLANK(YoYGrowth),
+			        "#808080",              -- Gray for N/A
+			        IF(YoYGrowth >= 0, "#008000", "#FF0000")  -- Green or Red
+			    )
+		displayFolder: Charts\Region Bar
+		lineageTag: 668102a8-f8f6-4f68-98da-4881f466afd1
+
+	measure Title = 0
+		formatString: 0
+		displayFolder: Charts\Region Bar
+		lineageTag: 5aa20512-bbc3-4171-b92f-0983ffcfc841
+
+	measure 'Segment Title' = ```
+			
+			    VAR SelectedMeasure = MAX('Select Measure'[Select Measure])
+			    VAR SelectedYear = MAX(DimDate[Year])
+			RETURN
+			    IF(
+			        ISBLANK(SelectedMeasure),
+			        "Select a Measure",
+			        SelectedMeasure & " by Segment - " & SelectedYear
+			    )
+			```
+		displayFolder: Charts\Donut Chart
+		lineageTag: fa9b6491-6eb8-4106-9988-a48e14aac05a
+
+	measure 'Ship Mode Title' = ```
+			
+			    VAR SelectedMeasure = MAX('Select Measure'[Select Measure])
+			    VAR SelectedYear = MAX(DimDate[Year])
+			RETURN
+			    IF(
+			        ISBLANK(SelectedMeasure),
+			        "Select a Measure",
+			        SelectedMeasure & " by Ship Mode - " & SelectedYear
+			    )
+			```
+		displayFolder: Charts\Donut Chart
+		lineageTag: 9f790df0-ea4d-43bb-bff7-764591c64083
+
+	partition 'Measure Table' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Column1"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+

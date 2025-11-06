@@ -1,0 +1,77 @@
+table DimProduct
+	lineageTag: be48ad34-199d-471e-8342-24e9a65df0a2
+
+	column Category
+		dataType: string
+		lineageTag: f44d0cf3-6dbd-4e85-9cb0-07aa09088b40
+		summarizeBy: none
+		sourceColumn: Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column Manufacturer
+		dataType: string
+		lineageTag: 94a78529-ff4a-45ae-a21f-ea5c3e10eb66
+		summarizeBy: none
+		sourceColumn: Manufacturer
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product Name'
+		dataType: string
+		lineageTag: acbb5386-5ad6-4105-880c-219282ffaa32
+		summarizeBy: none
+		sourceColumn: Product Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sub-Category
+		dataType: string
+		lineageTag: 7d27146f-5b92-4865-ac61-3eb1031bf5b2
+		summarizeBy: none
+		sourceColumn: Sub-Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: c9293ba3-c0bf-4713-9251-a6c042bc480c
+		summarizeBy: none
+		sourceColumn: Product ID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimProduct = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("D:\Masaüstü 2025\Power BI Proje\first_project\supermarket.xlsx"), null, true),
+				    #"Tableau Superstore_Sheet" = Source{[Item="Tableau Superstore",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Tableau Superstore_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Category", type text}, {"City", type text}, {"Country", type text}, {"Customer Name", type text}, {"Manufacturer", type text}, {"Order Date", type date}, {"Order ID", type text}, {"Postal Code", Int64.Type}, {"Product Name", type text}, {"Region", type text}, {"Segment", type text}, {"Ship Date", type date}, {"Ship Mode", type text}, {"State", type text}, {"Sub-Category", type text}, {"Discount", type number}, {"Number of Records", Int64.Type}, {"Profit", type text}, {"Profit Ratio", type number}, {"Quantity", Int64.Type}, {"Sales", type text}}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Changed Type", "Profit", "Profit - Copy"),
+				    #"Replaced Value" = Table.ReplaceValue(#"Duplicated Column","$","",Replacer.ReplaceText,{"Profit - Copy"}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Replaced Value",{{"Profit - Copy", Int64.Type}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type1",{"Profit - Copy"}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Removed Columns","$","",Replacer.ReplaceText,{"Profit"}),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Replaced Value1",{{"Profit", Currency.Type}}),
+				    #"Replaced Value2" = Table.ReplaceValue(#"Changed Type2","$","",Replacer.ReplaceText,{"Sales"}),
+				    #"Changed Type3" = Table.TransformColumnTypes(#"Replaced Value2",{{"Sales", Currency.Type}}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Changed Type3",{"Category", "Manufacturer", "Product Name", "Sub-Category"}),
+				    #"Added Index" = Table.AddIndexColumn(#"Removed Other Columns", "Index", 0, 1, Int64.Type),
+				    #"Added Index1" = Table.AddIndexColumn(#"Added Index", "Index.1", 1, 1, Int64.Type),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Added Index1",{"Index"}),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Removed Columns1",{"Index.1", "Category", "Manufacturer", "Product Name", "Sub-Category"}),
+				    #"Removed Columns2" = Table.RemoveColumns(#"Reordered Columns",{"Index.1"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Removed Columns2"),
+				    #"Added Index2" = Table.AddIndexColumn(#"Removed Duplicates", "Index", 1, 1, Int64.Type),
+				    #"Reordered Columns1" = Table.ReorderColumns(#"Added Index2",{"Index", "Category", "Manufacturer", "Product Name", "Sub-Category"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Reordered Columns1",{{"Index", "Product ID"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

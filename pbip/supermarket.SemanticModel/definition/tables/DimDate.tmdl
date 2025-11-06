@@ -1,0 +1,128 @@
+table DimDate
+	lineageTag: f2f1059b-31c0-40cf-8cc7-cc588b8e88d1
+
+	column Date
+		formatString: General Date
+		lineageTag: 825ea746-2d69-4a2f-b6ed-93e002a50eed
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		variation Variation
+			isDefault
+			relationship: c6a6a107-440f-487e-9041-5f1ca004b6d9
+			defaultHierarchy: LocalDateTable_9be49d93-8aa9-4a63-a6dd-05e6e4c1f122.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		formatString: 0
+		lineageTag: 71e07093-c43c-4ea2-98d9-a8bf2f2a2dde
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNum
+		formatString: 0
+		lineageTag: f033217e-d513-4ecc-878b-003595021061
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [MonthNum]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		lineageTag: 0b8c21bf-28e0-4aeb-9ee1-38c22d15953e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month]
+		sortByColumn: MonthNum
+
+		annotation SummarizationSetBy = Automatic
+
+	column FullMonthName
+		lineageTag: a602a7b5-bd76-4114-b1a2-4de289a2a677
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [FullMonthName]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		lineageTag: 1b0b89b3-2a67-4a20-bde0-b45d4a3bef01
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	column DayOfWeek
+		formatString: 0
+		lineageTag: 6755da4d-e81e-4344-bdc9-fdf14817ffb3
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [DayOfWeek]
+
+		annotation SummarizationSetBy = Automatic
+
+	column DayName
+		lineageTag: 64533483-2a62-46fa-b39d-4864a238915b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [DayName]
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateKey
+		lineageTag: 0eed88e7-c501-4bac-826d-c391c70c6b6c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [DateKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Name (Initial)' = LEFT( 'DimDate'[FullMonthName] , 1 )
+		lineageTag: d0d93106-eadf-4adb-a11d-e293d97f06e5
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthStartDate = ```
+			
+			    DATE(
+			        YEAR(DimDate[Date]),
+			        MONTH(DimDate[Date]), 1)
+			```
+		formatString: General Date
+		lineageTag: ad31d0da-1206-4e0c-a93e-4ccfd610dc9c
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: cf6e7f27-29a5-4253-857f-6dbc14471ff3
+			defaultHierarchy: LocalDateTable_2ff2269e-aaf2-4929-b327-702b6435c976.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDate = calculated
+		mode: import
+		source = ```
+				
+				ADDCOLUMNS(
+				    CALENDAR(MIN('FactSales'[Order Date]), MAX('FactSales'[Order Date])),
+				    "Year", YEAR([Date]),
+				    "MonthNum", MONTH([Date]),
+				    "Month", FORMAT([Date], "MMM"),
+				    "FullMonthName", FORMAT([Date], "MMMM"),
+				    "Quarter", "Q" & FORMAT([Date], "Q"),
+				    "DayOfWeek", WEEKDAY([Date], 2),
+				    "DayName", FORMAT([Date], "dddd"),
+				    "DateKey", FORMAT([Date], "YYYYMMDD")
+				)
+				
+				```
+
+	annotation PBI_Id = 5797d3de5e724e4691e473fa5fd5800a
+

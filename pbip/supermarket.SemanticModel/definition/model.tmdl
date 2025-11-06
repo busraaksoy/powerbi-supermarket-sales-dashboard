@@ -1,0 +1,35 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBIDesktopVersion = 2.145.1457.0 (25.07)+6e87ffa743c5aa106a85a0b5e383d76d522045ba
+
+annotation PBI_QueryOrder = ["Superstore","DimProduct","DimLocation","DimCustomers","DimOrders","FactSales","Measure Table"]
+
+annotation __TEdtr = 1
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table DateTableTemplate_b8f7f470-bab7-42dd-aece-9d67777bab41
+ref table DimProduct
+ref table DimLocation
+ref table DimCustomers
+ref table DimOrders
+ref table LocalDateTable_f43b75da-cff3-4d79-a499-f3203d2c340b
+ref table LocalDateTable_06733b14-b423-4b85-8101-5b5791f854b6
+ref table FactSales
+ref table LocalDateTable_9dd4256d-8216-4f50-9223-064b5c1b74ce
+ref table DimDate
+ref table LocalDateTable_9be49d93-8aa9-4a63-a6dd-05e6e4c1f122
+ref table LocalDateTable_2ff2269e-aaf2-4929-b327-702b6435c976
+ref table 'Measure Table'
+ref table 'Select Measure'
+
+ref cultureInfo en-US
+
